@@ -1,70 +1,55 @@
+import tkinter as tk
 import logging
 
 def setup_logger() -> None:
-    """
-    Configures the application logger.
-    Saves all logs to a file and formats them professionally with a timestamp.
-    """
+    """Configures the logger to save tracked keys to a file."""
     logging.basicConfig(
-        filename="my_application.log", 
-        level=logging.DEBUG, # Captures EVERYTHING from DEBUG all the way up to CRITICAL
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S" # Adds a clean date/time format
+        filename="key_tracker.log", 
+        level=logging.INFO, 
+        format="%(asctime)s - KEY PRESSED: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-def division_calculator() -> None:
-    """A safe division calculator that logs all user interactions and errors."""
+def on_key_press(event) -> None:
+    """
+    This is the Listener Function. 
+    Every time a key is pressed while the window is active, this catches it.
+    """
+    key_pressed = event.keysym
     
-    # INFO: Normal application behavior
-    logging.info("Application started. User entered the division calculator.")
-    print("--------- Professional Division Calculator ---------")
+    # Log the key to our file
+    logging.info(f"[{key_pressed}]")
     
-    try:
-        # DEBUG: Great for seeing the raw data exactly as it was typed
-        a_input = input("Enter number 'a': ")
-        logging.debug(f"Raw input for 'a': '{a_input}'")
-        a = float(a_input) # We use float instead of int to allow decimals!
-        
-        b_input = input("Enter number 'b': ")
-        logging.debug(f"Raw input for 'b': '{b_input}'")
-        b = float(b_input)
-        
-    except ValueError:
-        # WARNING: The user did something wrong (typed text instead of numbers), 
-        # but we caught it, so the program doesn't completely crash.
-        print("❌ Invalid input! Please enter numbers only.")
-        logging.warning("User entered non-numeric data. Calculation aborted.")
-        return
-
-    # ERROR: A specific rule was violated
-    if b == 0:
-        print("❌ Error: Cannot divide by zero.")
-        logging.error(f"Attempted division by zero (a={a}). Operation aborted.")
-        return
-
-    # If we made it this far, do the math!
-    try:
-        result = a / b
-        print(f"✅ Result: {a} / {b} = {result}")
-        
-        # INFO: Recording a successful operation
-        logging.info(f"Successful calculation: {a} / {b} = {result}")
-        
-    except Exception as e:
-        # CRITICAL: A catch-all for massive, unexpected crashes
-        print("💥 A critical system error occurred!")
-        logging.critical(f"Unexpected crash during calculation: {e}", exc_info=True)
+    # Print it to the terminal so you can see it working
+    print(f"Tracked key: {key_pressed}")
 
 def main() -> None:
     # 1. Start the logger
     setup_logger()
+    print("--- Safe Key Tracker Started ---")
+    print("A window will open. Click on the window and start typing.")
+    print("Close the window to stop tracking.")
     
-    # 2. Run the application
-    division_calculator()
+    # 2. Create the application window
+    root = tk.Tk()
+    root.title("SkillCraft Key Tracker")
+    root.geometry("400x200") # Width x Height
     
-    # 3. Log that the app is closing, adding a visual divider line in the log file
-    logging.info("Application closed.\n" + "-"*50)
-    print("\n📝 Log saved to 'my_application.log'. Open it in a text editor to see the results!")
+    # Add an instruction label
+    instruction = tk.Label(
+        root, 
+        text="Click here and start typing to track keys.\nLogs are saved to 'key_tracker.log'", 
+        font=("Arial", 12)
+    )
+    instruction.pack(expand=True)
+    
+    # 3. Bind the keyboard to the listener function
+    root.bind("<Key>", on_key_press)
+    
+    # 4. Keep the window running
+    root.mainloop()
+    
+    print("\nTracker closed. Check 'key_tracker.log' for the results!")
 
 if __name__ == "__main__":
     main()
